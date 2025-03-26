@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Ventas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+        .sidebar {
+            width: 200px;
+            background: #333;
+            color: white;
+            height: 100vh;
+            padding: 20px;
+        }
+        .sidebar h2 {
+            color: #fff;
+            text-align: center;
+        }
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+        .sidebar li {
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid #444;
+        }
+        .sidebar li:hover {
+            background: #444;
+        }
+        .main {
+            flex: 1;
+            padding: 20px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        button {
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 50%;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>Menú</h2>
+        <ul>
+            <li onclick="mostrarSeccion('ventas')">Ventas</li>
+            <li onclick="mostrarSeccion('clientes')">Clientes</li>
+            <li onclick="mostrarSeccion('productos')">Productos</li>
+        </ul>
+    </div>
+
+    <div class="main">
+        <div id="ventas" class="seccion">
+            <div class="header">
+                <h2>Ventas</h2>
+                <button onclick="abrirModalVenta()">Nueva Venta</button>
+            </div>
+            <table id="tablaVentas">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Cliente</th>
+                        <th>Observaciones</th>
+                        <th>Total</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <div id="clientes" class="seccion" style="display:none;">
+            <div class="header">
+                <h2>Clientes</h2>
+                <button onclick="abrirModalCliente()">Nuevo Cliente</button>
+            </div>
+            <table id="tablaClientes">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Documento</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <div id="productos" class="seccion" style="display:none;">
+            <div class="header">
+                <h2>Productos</h2>
+                <button onclick="abrirModalProducto()">Nuevo Producto</button>
+            </div>
+            <table id="tablaProductos">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Código</th>
+                        <th>Precio</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="modalProducto" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="cerrarModal('modalProducto')">&times;</span>
+            <h2 id="tituloProducto">Nuevo Producto</h2>
+            <div class="form-group">
+                <label>Nombre</label>
+                <input type="text" id="nombreProducto">
+            </div>
+            <div class="form-group">
+                <label>Código</label>
+                <input type="text" id="codigoProducto">
+            </div>
+            <div class="form-group">
+                <label>Precio</label>
+                <input type="number" id="precioProducto">
+            </div>
+            <button onclick="guardarProducto()">Guardar</button>
+        </div>
+    </div>
+
+    <div id="modalCliente" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="cerrarModal('modalCliente')">&times;</span>
+            <h2 id="tituloCliente">Nuevo Cliente</h2>
+            <div class="form-group">
+                <label>Nombre</label>
+                <input type="text" id="nombreCliente">
+            </div>
+            <div class="form-group">
+                <label>Documento</label>
+                <input type="text" id="documentoCliente">
+            </div>
+            <button onclick="guardarCliente()">Guardar</button>
+        </div>
+    </div>
+
+    <div id="modalVenta" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="cerrarModal('modalVenta')">&times;</span>
+            <h2 id="tituloVenta">Nueva Venta</h2>
+            <div class="form-group">
+                <label>Cliente</label>
+                <select id="clienteVenta"></select>
+            </div>
+            <div class="form-group">
+                <label>Observaciones</label>
+                <input type="text" id="observacionesVenta">
+            </div>
+            <h3>Detalles</h3>
+            <div id="detallesVenta"></div>
+            <button onclick="agregarDetalle()">Agregar Producto</button>
+            <div class="form-group">
+                <label>Total</label>
+                <input type="text" id="totalVenta" readonly>
+            </div>
+            <button onclick="guardarVenta()">Guardar Venta</button>
+        </div>
+    </div>
+
+    <div id="modalDetalle" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="cerrarModal('modalDetalle')">&times;</span>
+            <h2>Detalles de Venta</h2>
+            <div id="infoCliente"></div>
+            <div id="infoObservaciones"></div>
+            <table id="tablaDetalles">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Cantidad</th>
+                        <th>Precio</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <div id="infoTotal"></div>
+        </div>
+    </div>
+
+    <script>
+        let productos = [
+            {id: 1, nombre: "Producto 1", codigo: "P001", precio: 100},
+            {id: 2, nombre: "Producto 2", codigo: "P002", precio: 200},
+            {id: 3, nombre: "Producto 3", codigo: "P003", precio: 300}
+        ];
+
+        let clientes = [
+            {id: 1, nombre: "Cliente 1", documento: "12345678"},
+            {id: 2, nombre: "Cliente 2", documento: "87654321"},
+            {id: 3, nombre: "Cliente 3", documento: "11223344"}
+        ];
+
+        let ventas = [
+            {
+                id: 1,
+                clienteId: 1,
+                observaciones: "Primera venta",
+                total: 400,
+                detalles: [
+                    {id: 1, productoId: 1, cantidad: 2, precio: 100, subtotal: 200},
+                    {id: 2, productoId: 2, cantidad: 1, precio: 200, subtotal: 200}
+                ]
+            }
+        ];
+
+        let productoEditando = null;
+        let clienteEditando = null;
+        let ventaEditando = null;
+
+        function mostrarSeccion(seccion) {
+            document.querySelectorAll('.seccion').forEach(s => {
+                s.style.display = 'none';
+            });
+            document.getElementById(seccion).style.display = 'block';
+            cargarDatos();
+        }
+
+        function cargarDatos() {
+            cargarProductos();
+            cargarClientes();
+            cargarVentas();
+        }
+
+        function cargarProductos() {
+            const tbody = document.querySelector('#tablaProductos tbody');
+            tbody.innerHTML = '';
+            productos.forEach(p => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${p.id}</td>
+                    <td>${p.nombre}</td>
+                    <td>${p.codigo}</td>
+                    <td>${p.precio}</td>
+                    <td>
+                        <button onclick="editarProducto(${p.id})">Editar</button>
+                        <button onclick="eliminarProducto(${p.id})">Eliminar</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function cargarClientes() {
+            const tbody = document.querySelector('#tablaClientes tbody');
+            tbody.innerHTML = '';
+            clientes.forEach(c => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${c.id}</td>
+                    <td>${c.nombre}</td>
+                    <td>${c.documento}</td>
+                    <td>
+                        <button onclick="editarCliente(${c.id})">Editar</button>
+                        <button onclick="eliminarCliente(${c.id})">Eliminar</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function cargarVentas() {
+            const tbody = document.querySelector('#tablaVentas tbody');
+            tbody.innerHTML = '';
+            ventas.forEach(v => {
+                const cliente = clientes.find(c => c.id === v.clienteId);
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${v.id}</td>
+                    <td>${cliente ? cliente.nombre : ''}</td>
+                    <td>${v.observaciones}</td>
+                    <td>${v.total}</td>
+                    <td>
+                        <button onclick="verDetalleVenta(${v.id})">Ver</button>
+                        <button onclick="editarVenta(${v.id})">Editar</button>
+                        <button onclick="eliminarVenta(${v.id})">Eliminar</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function abrirModalProducto() {
+            productoEditando = null;
+            document.getElementById('tituloProducto').textContent = 'Nuevo Producto';
+            document.getElementById('nombreProducto').value = '';
+            document.getElementById('codigoProducto').value = '';
+            document.getElementById('precioProducto').value = '';
+            document.getElementById('modalProducto').style.display = 'block';
+        }
+
+        function abrirModalCliente() {
+            clienteEditando = null;
+            document.getElementById('tituloCliente').textContent = 'Nuevo Cliente';
+            document.getElementById('nombreCliente').value = '';
+            document.getElementById('documentoCliente').value = '';
+            document.getElementById('modalCliente').style.display = 'block';
+        }
+
+        function abrirModalVenta() {
+            ventaEditando = null;
+            document.getElementById('tituloVenta').textContent = 'Nueva Venta';
+            document.getElementById('observacionesVenta').value = '';
+            document.getElementById('totalVenta').value = '0';
+            document.getElementById('detallesVenta').innerHTML = '';
+            
+            const select = document.getElementById('clienteVenta');
+            select.innerHTML = '<option value="">Seleccionar cliente</option>';
+            clientes.forEach(c => {
+                const option = document.createElement('option');
+                option.value = c.id;
+                option.textContent = c.nombre;
+                select.appendChild(option);
+            });
+            
+            document.getElementById('modalVenta').style.display = 'block';
+        }
+
+        function cerrarModal(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        function editarProducto(id) {
+            productoEditando = productos.find(p => p.id === id);
+            document.getElementById('tituloProducto').textContent = 'Editar Producto';
+            document.getElementById('nombreProducto').value = productoEditando.nombre;
+            document.getElementById('codigoProducto').value = productoEditando.codigo;
+            document.getElementById('precioProducto').value = productoEditando.precio;
+            document.getElementById('modalProducto').style.display = 'block';
+        }
+
+        function editarCliente(id) {
+            clienteEditando = clientes.find(c => c.id === id);
+            document.getElementById('tituloCliente').textContent = 'Editar Cliente';
+            document.getElementById('nombreCliente').value = clienteEditando.nombre;
+            document.getElementById('documentoCliente').value = clienteEditando.documento;
+            document.getElementById('modalCliente').style.display = 'block';
+        }
+
+        function editarVenta(id) {
+            ventaEditando = ventas.find(v => v.id === id);
+            document.getElementById('tituloVenta').textContent = 'Editar Venta';
+            document.getElementById('observacionesVenta').value = ventaEditando.observaciones;
+            document.getElementById('totalVenta').value = ventaEditando.total;
+            
+            const select = document.getElementById('clienteVenta');
+            select.innerHTML = '<option value="">Seleccionar cliente</option>';
+            clientes.forEach(c => {
+                const option = document.createElement('option');
+                option.value = c.id;
+                option.textContent = c.nombre;
+                if (c.id === ventaEditando.clienteId) {
+                    option.selected = true;
+                }
+                select.appendChild(option);
+            });
+            
+            const detallesDiv = document.getElementById('detallesVenta');
+            detallesDiv.innerHTML = '';
+            ventaEditando.detalles.forEach(d => {
+                const producto = productos.find(p => p.id === d.productoId);
+                const div = document.createElement('div');
+                div.innerHTML = `
+                    <select class="productoDetalle">
+                        ${productos.map(p => `<option value="${p.id}" ${p.id === d.productoId ? 'selected' : ''}>${p.nombre}</option>`).join('')}
+                    </select>
+                    <input type="number" class="cantidadDetalle" value="${d.cantidad}" min="1">
+                    <input type="number" class="precioDetalle" value="${d.precio}" readonly>
+                    <span>Subtotal: ${d.subtotal}</span>
+                    <button onclick="eliminarDetalle(this)">Eliminar</button>
+                `;
+                detallesDiv.appendChild(div);
+            });
+            
+            document.getElementById('modalVenta').style.display = 'block';
+        }
+
+        function agregarDetalle() {
+            const detallesDiv = document.getElementById('detallesVenta');
+            const div = document.createElement('div');
+            div.innerHTML = `
+                <select class="productoDetalle">
+                    <option value="">Seleccionar producto</option>
+                    ${productos.map(p => `<option value="${p.id}">${p.nombre}</option>`).join('')}
+                </select>
+                <input type="number" class="cantidadDetalle" value="1" min="1">
+                <input type="number" class="precioDetalle" readonly>
+                <span>Subtotal: 0</span>
+                <button onclick="eliminarDetalle(this)">Eliminar</button>
+            `;
+            detallesDiv.appendChild(div);
+            
+            const select = div.querySelector('.productoDetalle');
+            select.addEventListener('change', function() {
+                const productoId = parseInt(this.value);
+                const producto = productos.find(p => p.id === productoId);
+                if (producto) {
+                    div.querySelector('.precioDetalle').value = producto.precio;
+                    calcularSubtotal(div);
+                }
+            });
+            
+            const inputCantidad = div.querySelector('.cantidadDetalle');
+            inputCantidad.addEventListener('change', function() {
+                calcularSubtotal(div);
+            });
+        }
+
+        function eliminarDetalle(button) {
+            button.parentElement.remove();
+            calcularTotalVenta();
+        }
+
+        function calcularSubtotal(detalleDiv) {
+            const cantidad = parseInt(detalleDiv.querySelector('.cantidadDetalle').value) || 0;
+            const precio = parseFloat(detalleDiv.querySelector('.precioDetalle').value) || 0;
+            const subtotal = cantidad * precio;
+            detalleDiv.querySelector('span').textContent = `Subtotal: ${subtotal}`;
+            calcularTotalVenta();
+        }
+
+        function calcularTotalVenta() {
+            let total = 0;
+            document.querySelectorAll('#detallesVenta div').forEach(div => {
+                const subtotalText = div.querySelector('span').textContent;
+                const subtotal = parseFloat(subtotalText.split(':')[1].trim()) || 0;
+                total += subtotal;
+            });
+            document.getElementById('totalVenta').value = total;
+        }
+
+        function guardarProducto() {
+            const nombre = document.getElementById('nombreProducto').value;
+            const codigo = document.getElementById('codigoProducto').value;
+            const precio = parseFloat(document.getElementById('precioProducto').value);
+            
+            if (!nombre || !codigo || isNaN(precio)) {
+                alert('Complete todos los campos');
+                return;
+            }
+            
+            if (productoEditando) {
+                productoEditando.nombre = nombre;
+                productoEditando.codigo = codigo;
+                productoEditando.precio = precio;
+            } else {
+                const nuevoId = productos.length > 0 ? Math.max(...productos.map(p => p.id)) + 1 : 1;
+                productos.push({id: nuevoId, nombre, codigo, precio});
+            }
+            
+            cerrarModal('modalProducto');
+            cargarProductos();
+        }
+
+        function guardarCliente() {
+            const nombre = document.getElementById('nombreCliente').value;
+            const documento = document.getElementById('documentoCliente').value;
+            
+            if (!nombre || !documento) {
+                alert('Complete todos los campos');
+                return;
+            }
+            
+            if (clienteEditando) {
+                clienteEditando.nombre = nombre;
+                clienteEditando.documento = documento;
+            } else {
+                const nuevoId = clientes.length > 0 ? Math.max(...clientes.map(c => c.id)) + 1 : 1;
+                clientes.push({id: nuevoId, nombre, documento});
+            }
+            
+            cerrarModal('modalCliente');
+            cargarClientes();
+        }
+
+        function guardarVenta() {
+            const clienteId = parseInt(document.getElementById('clienteVenta').value);
+            const observaciones = document.getElementById('observacionesVenta').value;
+            const total = parseFloat(document.getElementById('totalVenta').value);
+            
+            if (isNaN(clienteId) || clienteId <= 0) {
+                alert('Seleccione un cliente');
+                return;
+            }
+            
+            const detalles = [];
+            document.querySelectorAll('#detallesVenta div').forEach(div => {
+                const productoId = parseInt(div.querySelector('.productoDetalle').value);
+                const cantidad = parseInt(div.querySelector('.cantidadDetalle').value);
+                const precio = parseFloat(div.querySelector('.precioDetalle').value);
+                
+                if (productoId && cantidad && precio) {
+                    detalles.push({
+                        id: detalles.length + 1,
+                        productoId,
+                        cantidad,
+                        precio,
+                        subtotal: cantidad * precio
+                    });
+                }
+            });
+            
+            if (detalles.length === 0) {
+                alert('Agregue al menos un producto');
+                return;
+            }
+            
+            if (ventaEditando) {
+                ventaEditando.clienteId = clienteId;
+                ventaEditando.observaciones = observaciones;
+                ventaEditando.total = total;
+                ventaEditando.detalles = detalles;
+            } else {
+                const nuevoId = ventas.length > 0 ? Math.max(...ventas.map(v => v.id)) + 1 : 1;
+                ventas.push({
+                    id: nuevoId,
+                    clienteId,
+                    observaciones,
+                    total,
+                    detalles,
+                    fecha: new Date().toISOString().split('T')[0]
+                });
+            }
+            
+            cerrarModal('modalVenta');
+            cargarVentas();
+        }
+
+        function verDetalleVenta(id) {
+            const venta = ventas.find(v => v.id === id);
+            const cliente = clientes.find(c => c.id === venta.clienteId);
+            
+            document.getElementById('infoCliente').innerHTML = `<p><strong>Cliente:</strong> ${cliente.nombre} (${cliente.documento})</p>`;
+            document.getElementById('infoObservaciones').innerHTML = `<p><strong>Observaciones:</strong> ${venta.observaciones || 'Ninguna'}</p>`;
+            
+            const tbody = document.querySelector('#tablaDetalles tbody');
+            tbody.innerHTML = '';
+            venta.detalles.forEach(d => {
+                const producto = productos.find(p => p.id === d.productoId);
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${producto.nombre}</td>
+                    <td>${d.cantidad}</td>
+                    <td>${d.precio}</td>
+                    <td>${d.subtotal}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+            
+            document.getElementById('infoTotal').innerHTML = `<p><strong>Total:</strong> ${venta.total}</p>`;
+            document.getElementById('modalDetalle').style.display = 'block';
+        }
+
+        function eliminarProducto(id) {
+            if (confirm('¿Eliminar este producto?')) {
+                productos = productos.filter(p => p.id !== id);
+                cargarProductos();
+            }
+        }
+
+        function eliminarCliente(id) {
+            if (confirm('¿Eliminar este cliente?')) {
+                clientes = clientes.filter(c => c.id !== id);
+                cargarClientes();
+            }
+        }
+
+        function eliminarVenta(id) {
+            if (confirm('¿Eliminar esta venta?')) {
+                ventas = ventas.filter(v => v.id !== id);
+                cargarVentas();
+            }
+        }
+
+        window.onload = function() {
+            cargarDatos();
+        };
+    </script>
+</body>
+</html>
