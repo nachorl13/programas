@@ -1,0 +1,1602 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messi | Sistema de Gestión Comercial</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #818cf8;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --dark: #1e293b;
+            --dark-2: #334155;
+            --light: #f8fafc;
+            --light-2: #e2e8f0;
+            --gray: #94a3b8;
+            --radius: 12px;
+            --radius-sm: 8px;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9;
+            color: var(--dark);
+            line-height: 1.5;
+        }
+
+        /* Layout */
+        .app {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            color: white;
+            padding: 2rem 0;
+            position: relative;
+            z-index: 10;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 1.5rem 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 1.5rem;
+        }
+
+        .brand-logo {
+            width: 36px;
+            height: 36px;
+            background: var(--primary);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .brand-name {
+            font-weight: 700;
+            font-size: 1.25rem;
+            letter-spacing: -0.5px;
+        }
+
+        .nav {
+            list-style: none;
+            padding: 0 1rem;
+        }
+
+        .nav-item {
+            margin-bottom: 4px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0.75rem 1rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .nav-link i {
+            width: 24px;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        /* Main Content */
+        .main {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 2rem;
+            background: white;
+            box-shadow: var(--shadow);
+            z-index: 5;
+        }
+
+        .header-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        /* Content */
+        .content {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        /* Dashboard */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .stat-title {
+            font-size: 0.875rem;
+            color: var(--gray);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-change {
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .stat-change.positive {
+            color: var(--secondary);
+        }
+
+        .stat-change.negative {
+            color: var(--danger);
+        }
+
+        /* Tables */
+        .card {
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--light-2);
+        }
+
+        .card-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th {
+            background: var(--light);
+            padding: 1rem 1.5rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: var(--dark-2);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .table td {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--light-2);
+            vertical-align: middle;
+        }
+
+        .table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .table tr:hover {
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0.625rem 1.25rem;
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--light-2);
+            color: var(--dark);
+        }
+
+        .btn-outline:hover {
+            background: var(--light);
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .badge-success {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .badge-warning {
+            background: #fef08a;
+            color: #854d0e;
+        }
+
+        .badge-danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: var(--transition);
+        }
+
+        .modal.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: var(--radius);
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: translateY(20px);
+            transition: var(--transition);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .modal.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--light-2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray);
+            transition: var(--transition);
+        }
+
+        .modal-close:hover {
+            color: var(--danger);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            padding: 1.25rem 1.5rem;
+            border-top: 1px solid var(--light-2);
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+        }
+
+        /* Form */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--light-2);
+            border-radius: var(--radius-sm);
+            font-family: 'Inter', sans-serif;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        /* Sale details */
+        .sale-info {
+            background: var(--light);
+            border-radius: var(--radius-sm);
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .sale-info-item {
+            display: flex;
+            margin-bottom: 0.5rem;
+        }
+
+        .sale-info-label {
+            font-weight: 500;
+            min-width: 120px;
+            color: var(--gray);
+        }
+
+        /* Sale items */
+        .sale-items {
+            margin-bottom: 1.5rem;
+        }
+
+        .sale-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px dashed var(--light-2);
+        }
+
+        .sale-item:last-child {
+            border-bottom: none;
+        }
+
+        .sale-item-select {
+            flex: 1;
+        }
+
+        .sale-item-qty {
+            width: 80px;
+            margin: 0 0.75rem;
+        }
+
+        .sale-item-price {
+            width: 100px;
+        }
+
+        .sale-item-subtotal {
+            min-width: 100px;
+            text-align: right;
+            font-weight: 500;
+        }
+
+        .sale-item-remove {
+            color: var(--danger);
+            background: none;
+            border: none;
+            cursor: pointer;
+            margin-left: 0.75rem;
+        }
+
+        .sale-total {
+            background: var(--light);
+            border-radius: var(--radius-sm);
+            padding: 1.25rem;
+            text-align: right;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .app {
+                grid-template-columns: 240px 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .app {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: -100%;
+                width: 280px;
+                height: 100vh;
+                transition: var(--transition);
+            }
+            
+            .sidebar.active {
+                left: 0;
+            }
+            
+            .header {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+            
+            .content {
+                padding: 1.5rem;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 1.5rem;
+            right: 1.5rem;
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius-sm);
+            background: var(--dark);
+            color: white;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            z-index: 1100;
+            transform: translateX(150%);
+            transition: var(--transition);
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification-success {
+            background: var(--secondary);
+        }
+
+        .notification-error {
+            background: var(--danger);
+        }
+
+        .notification-icon {
+            font-size: 1.25rem;
+        }
+
+        /* Mobile menu button */
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--dark);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-logo">
+                    <i class="fas fa-cube"></i>
+                </div>
+                <div class="brand-name">Nexus</div>
+            </div>
+            
+            <ul class="nav">
+                <li class="nav-item">
+                    <a href="#" class="nav-link active" onclick="mostrarSeccion('dashboard')">
+                        <i class="fas fa-chart-pie"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" onclick="mostrarSeccion('ventas')">
+                        <i class="fas fa-receipt"></i>
+                        <span>Ventas</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" onclick="mostrarSeccion('clientes')">
+                        <i class="fas fa-users"></i>
+                        <span>Clientes</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" onclick="mostrarSeccion('productos')">
+                        <i class="fas fa-box-open"></i>
+                        <span>Productos</span>
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main">
+            <!-- Header -->
+            <header class="header">
+                <button class="menu-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1 class="header-title" id="header-title">Dashboard</h1>
+                <div class="header-actions">
+                    <div class="user-menu">
+                        <div class="user-avatar">AD</div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content -->
+            <div class="content">
+                <!-- Dashboard -->
+                <div id="dashboard" class="seccion">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-title">
+                                <i class="fas fa-dollar-sign"></i>
+                                Ventas Totales
+                            </div>
+                            <div class="stat-value" id="total-ventas">$0</div>
+                            <div class="stat-change positive">
+                                <i class="fas fa-arrow-up"></i>
+                                <span id="ventas-mes">0</span> este mes
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-title">
+                                <i class="fas fa-users"></i>
+                                Clientes
+                            </div>
+                            <div class="stat-value" id="total-clientes">0</div>
+                            <div class="stat-change positive">
+                                <i class="fas fa-arrow-up"></i>
+                                <span id="clientes-mes">0</span> nuevos
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-title">
+                                <i class="fas fa-boxes"></i>
+                                Productos
+                            </div>
+                            <div class="stat-value" id="total-productos">0</div>
+                            <div class="stat-change negative">
+                                <i class="fas fa-arrow-down"></i>
+                                <span id="productos-stock">0</span> en stock
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">Últimas Ventas</h2>
+                            <div class="card-actions">
+                                <button class="btn btn-sm btn-outline">
+                                    <i class="fas fa-sync-alt"></i> Actualizar
+                                </button>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table" id="tablaVentasResumen">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Fecha</th>
+                                        <th>Cliente</th>
+                                        <th>Total</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ventas -->
+                <div id="ventas" class="seccion" style="display:none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">Listado de Ventas</h2>
+                            <div class="card-actions">
+                                <button class="btn btn-primary" onclick="abrirModalVenta()">
+                                    <i class="fas fa-plus"></i> Nueva Venta
+                                </button>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table" id="tablaVentas">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Fecha</th>
+                                        <th>Cliente</th>
+                                        <th>Total</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Clientes -->
+                <div id="clientes" class="seccion" style="display:none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">Listado de Clientes</h2>
+                            <div class="card-actions">
+                                <button class="btn btn-primary" onclick="abrirModalCliente()">
+                                    <i class="fas fa-plus"></i> Nuevo Cliente
+                                </button>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table" id="tablaClientes">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Nombre</th>
+                                        <th>Documento</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Productos -->
+                <div id="productos" class="seccion" style="display:none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">Listado de Productos</h2>
+                            <div class="card-actions">
+                                <button class="btn btn-primary" onclick="abrirModalProducto()">
+                                    <i class="fas fa-plus"></i> Nuevo Producto
+                                </button>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table" id="tablaProductos">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Nombre</th>
+                                        <th>Código</th>
+                                        <th>Precio</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Producto -->
+    <div class="modal" id="modalProducto">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="tituloProducto">Nuevo Producto</h3>
+                <button class="modal-close" onclick="cerrarModal('modalProducto')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Nombre</label>
+                    <input type="text" id="nombreProducto" class="form-control" placeholder="Ingrese nombre del producto">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Código</label>
+                    <input type="text" id="codigoProducto" class="form-control" placeholder="Ingrese código del producto">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Precio</label>
+                    <input type="number" id="precioProducto" class="form-control" placeholder="Ingrese precio del producto" min="0" step="0.01">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="cerrarModal('modalProducto')">Cancelar</button>
+                <button class="btn btn-primary" onclick="guardarProducto()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Cliente -->
+    <div class="modal" id="modalCliente">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="tituloCliente">Nuevo Cliente</h3>
+                <button class="modal-close" onclick="cerrarModal('modalCliente')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Nombre</label>
+                    <input type="text" id="nombreCliente" class="form-control" placeholder="Ingrese nombre del cliente">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Documento</label>
+                    <input type="text" id="documentoCliente" class="form-control" placeholder="Ingrese documento del cliente">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="cerrarModal('modalCliente')">Cancelar</button>
+                <button class="btn btn-primary" onclick="guardarCliente()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Venta -->
+    <div class="modal" id="modalVenta">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="tituloVenta">Nueva Venta</h3>
+                <button class="modal-close" onclick="cerrarModal('modalVenta')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Cliente</label>
+                    <select id="clienteVenta" class="form-control">
+                        <option value="">Seleccionar cliente</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Observaciones</label>
+                    <input type="text" id="observacionesVenta" class="form-control" placeholder="Ingrese observaciones (opcional)">
+                </div>
+                
+                <h4 style="margin: 1.5rem 0 1rem;">Detalles de Venta</h4>
+                <div id="detallesVenta"></div>
+                
+                <button class="btn btn-outline" onclick="agregarDetalle()" style="margin-top: 1rem;">
+                    <i class="fas fa-plus"></i> Agregar Producto
+                </button>
+                
+                <div class="sale-total">
+                    Total: <span id="totalVenta">$0.00</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="cerrarModal('modalVenta')">Cancelar</button>
+                <button class="btn btn-primary" onclick="guardarVenta()">Guardar Venta</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Detalle Venta -->
+    <div class="modal" id="modalDetalle">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Detalles de Venta</h3>
+                <button class="modal-close" onclick="cerrarModal('modalDetalle')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="sale-info">
+                    <div class="sale-info-item">
+                        <div class="sale-info-label">N° Venta:</div>
+                        <div id="detalle-id"></div>
+                    </div>
+                    <div class="sale-info-item">
+                        <div class="sale-info-label">Cliente:</div>
+                        <div id="detalle-cliente"></div>
+                    </div>
+                    <div class="sale-info-item">
+                        <div class="sale-info-label">Documento:</div>
+                        <div id="detalle-documento"></div>
+                    </div>
+                    <div class="sale-info-item">
+                        <div class="sale-info-label">Observaciones:</div>
+                        <div id="detalle-observaciones"></div>
+                    </div>
+                    <div class="sale-info-item">
+                        <div class="sale-info-label">Fecha:</div>
+                        <div id="detalle-fecha"></div>
+                    </div>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table" id="tablaDetalles">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Código</th>
+                                <th>Cantidad</th>
+                                <th>Precio Unit.</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                
+                <div class="sale-total">
+                    Total Venta: <span id="detalle-total">$0.00</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="cerrarModal('modalDetalle')">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notificación -->
+    <div class="notification" id="notification">
+        <div class="notification-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <div id="notification-message">Operación exitosa</div>
+    </div>
+
+    <script>
+        // Base de datos en memoria
+        let productos = [
+            {id: 1, nombre: "Laptop HP EliteBook", codigo: "LT-HP-001", precio: 1250.00},
+            {id: 2, nombre: "Mouse Logitech MX", codigo: "MS-LG-002", precio: 79.99},
+            {id: 3, nombre: "Teclado Mecánico RGB", codigo: "TK-MC-003", precio: 129.99},
+            {id: 4, nombre: "Monitor 27\" 4K", codigo: "MN-4K-004", precio: 349.99},
+            {id: 5, nombre: "Disco SSD 1TB", codigo: "HD-SSD-005", precio: 89.99}
+        ];
+
+        let clientes = [
+            {id: 1, nombre: "Lionel Messi", documento: "12345678A"},
+            {id: 2, nombre: "Antonella Ramirez", documento: "87654321B"},
+            {id: 3, nombre: "Ignacio Romero", documento: "11223344C"},
+            {id: 4, nombre: "Rodrigo De Paul", documento: "44332211D"},
+            {id: 5, nombre: "Leandro Paredes", documento: "55667788E"}
+        ];
+
+        let ventas = [
+            {
+                id: 1,
+                clienteId: 1,
+                observaciones: "Venta al contado con descuento especial",
+                fecha: "27/3/2025",
+                total: 1329.99,
+                detalles: [
+                    {id: 1, productoId: 1, cantidad: 1, precio: 1250.00, subtotal: 1250.00},
+                    {id: 2, productoId: 2, cantidad: 1, precio: 79.99, subtotal: 79.99}
+                ]
+            },
+            {
+                id: 2,
+                clienteId: 3,
+                observaciones: "",
+                fecha: "27/3/2025",
+                total: 479.98,
+                detalles: [
+                    {id: 1, productoId: 3, cantidad: 1, precio: 129.99, subtotal: 129.99},
+                    {id: 2, productoId: 4, cantidad: 1, precio: 349.99, subtotal: 349.99}
+                ]
+            },
+            {
+                id: 3,
+                clienteId: 2,
+                observaciones: "Entrega urgente",
+                fecha: "27/3/2025",
+                total: 269.97,
+                detalles: [
+                    {id: 1, productoId: 5, cantidad: 3, precio: 89.99, subtotal: 269.97}
+                ]
+            }
+        ];
+
+        // Variables para edición
+        let productoEditando = null;
+        let clienteEditando = null;
+        let ventaEditando = null;
+
+        // Mostrar sección
+        function mostrarSeccion(seccion) {
+            document.querySelectorAll('.seccion').forEach(s => {
+                s.style.display = 'none';
+            });
+            document.getElementById(seccion).style.display = 'block';
+            
+            // Actualizar menú activo
+            document.querySelectorAll('.nav-link').forEach(a => {
+                a.classList.remove('active');
+            });
+            document.querySelector(`.nav-link[onclick="mostrarSeccion('${seccion}')"]`).classList.add('active');
+            
+            // Actualizar título
+            const titles = {
+                'dashboard': 'Dashboard',
+                'ventas': 'Gestión de Ventas',
+                'clientes': 'Gestión de Clientes',
+                'productos': 'Gestión de Productos'
+            };
+            document.getElementById('header-title').textContent = titles[seccion];
+            
+            cargarDatos();
+            actualizarEstadisticas();
+        }
+
+        // Toggle sidebar en móvil
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('active');
+        }
+
+        // Cargar datos iniciales
+        function cargarDatos() {
+            cargarProductos();
+            cargarClientes();
+            cargarVentas();
+        }
+
+        // Actualizar estadísticas del dashboard
+        function actualizarEstadisticas() {
+            // Total ventas
+            const totalVentas = ventas.reduce((sum, venta) => sum + venta.total, 0);
+            document.getElementById('total-ventas').textContent = `$${totalVentas.toFixed(2)}`;
+            
+            // Ventas este mes (simulado)
+            document.getElementById('ventas-mes').textContent = ventas.length;
+            
+            // Total clientes
+            document.getElementById('total-clientes').textContent = clientes.length;
+            
+            // Clientes nuevos este mes (simulado)
+            document.getElementById('clientes-mes').textContent = Math.floor(clientes.length / 2);
+            
+            // Total productos
+            document.getElementById('total-productos').textContent = productos.length;
+            
+            // Productos en stock (simulado)
+            document.getElementById('productos-stock').textContent = productos.length * 10;
+            
+            // Últimas ventas
+            const tbody = document.querySelector('#tablaVentasResumen tbody');
+            tbody.innerHTML = '';
+            
+            const ultimasVentas = [...ventas].sort((a, b) => new Date(b.fecha) - new Date(a.fecha)).slice(0, 5);
+            
+            ultimasVentas.forEach(v => {
+                const cliente = clientes.find(c => c.id === v.clienteId);
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${v.id}</td>
+                    <td>${v.fecha}</td>
+                    <td>${cliente ? cliente.nombre : 'Cliente no encontrado'}</td>
+                    <td>$${v.total.toFixed(2)}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline" onclick="verDetalleVenta(${v.id})">
+                            <i class="fas fa-eye"></i> Ver
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Productos
+        function cargarProductos() {
+            const tbody = document.querySelector('#tablaProductos tbody');
+            tbody.innerHTML = '';
+            
+            productos.forEach(p => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${p.id}</td>
+                    <td>${p.nombre}</td>
+                    <td>${p.codigo}</td>
+                    <td>$${p.precio.toFixed(2)}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline" onclick="editarProducto(${p.id})">
+                            <i class="fas fa-edit"></i> Editar
+                        </button>
+                        <button class="btn btn-sm btn-outline" onclick="eliminarProducto(${p.id})">
+                            <i class="fas fa-trash"></i> Eliminar
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function abrirModalProducto() {
+            productoEditando = null;
+            document.getElementById('tituloProducto').textContent = 'Nuevo Producto';
+            document.getElementById('nombreProducto').value = '';
+            document.getElementById('codigoProducto').value = '';
+            document.getElementById('precioProducto').value = '';
+            document.getElementById('modalProducto').classList.add('active');
+        }
+
+        function editarProducto(id) {
+            productoEditando = productos.find(p => p.id === id);
+            document.getElementById('tituloProducto').textContent = 'Editar Producto';
+            document.getElementById('nombreProducto').value = productoEditando.nombre;
+            document.getElementById('codigoProducto').value = productoEditando.codigo;
+            document.getElementById('precioProducto').value = productoEditando.precio;
+            document.getElementById('modalProducto').classList.add('active');
+        }
+
+        function guardarProducto() {
+            const nombre = document.getElementById('nombreProducto').value.trim();
+            const codigo = document.getElementById('codigoProducto').value.trim();
+            const precio = parseFloat(document.getElementById('precioProducto').value);
+            
+            // Validaciones
+            if (!nombre || !codigo || isNaN(precio) || precio <= 0) {
+                mostrarNotificacion('Complete todos los campos correctamente', 'error');
+                return;
+            }
+            
+            // Validar precio entre 300 y 1000
+            if (precio > 300 && precio < 1000) {
+                mostrarNotificacion('El precio no puede estar entre $300 y $1000', 'error');
+                return;
+            }
+            
+            if (productoEditando) {
+                // Edición
+                productoEditando.nombre = nombre;
+                productoEditando.codigo = codigo;
+                productoEditando.precio = precio;
+                mostrarNotificacion('Producto actualizado correctamente');
+            } else {
+                // Nuevo
+                const nuevoId = productos.length > 0 ? Math.max(...productos.map(p => p.id)) + 1 : 1;
+                productos.push({
+                    id: nuevoId,
+                    nombre,
+                    codigo,
+                    precio
+                });
+                mostrarNotificacion('Producto creado correctamente');
+            }
+            
+            cerrarModal('modalProducto');
+            cargarProductos();
+            actualizarEstadisticas();
+        }
+
+        function eliminarProducto(id) {
+            if (confirm('¿Está seguro de eliminar este producto?')) {
+                productos = productos.filter(p => p.id !== id);
+                mostrarNotificacion('Producto eliminado correctamente');
+                cargarProductos();
+                actualizarEstadisticas();
+            }
+        }
+
+        // Clientes
+        function cargarClientes() {
+            const tbody = document.querySelector('#tablaClientes tbody');
+            tbody.innerHTML = '';
+            
+            clientes.forEach(c => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${c.id}</td>
+                    <td>${c.nombre}</td>
+                    <td>${c.documento}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline" onclick="editarCliente(${c.id})">
+                            <i class="fas fa-edit"></i> Editar
+                        </button>
+                        <button class="btn btn-sm btn-outline" onclick="eliminarCliente(${c.id})">
+                            <i class="fas fa-trash"></i> Eliminar
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function abrirModalCliente() {
+            clienteEditando = null;
+            document.getElementById('tituloCliente').textContent = 'Nuevo Cliente';
+            document.getElementById('nombreCliente').value = '';
+            document.getElementById('documentoCliente').value = '';
+            document.getElementById('modalCliente').classList.add('active');
+        }
+
+        function editarCliente(id) {
+            clienteEditando = clientes.find(c => c.id === id);
+            document.getElementById('tituloCliente').textContent = 'Editar Cliente';
+            document.getElementById('nombreCliente').value = clienteEditando.nombre;
+            document.getElementById('documentoCliente').value = clienteEditando.documento;
+            document.getElementById('modalCliente').classList.add('active');
+        }
+
+        function guardarCliente() {
+            const nombre = document.getElementById('nombreCliente').value.trim();
+            const documento = document.getElementById('documentoCliente').value.trim();
+            
+            if (!nombre || !documento) {
+                mostrarNotificacion('Complete todos los campos', 'error');
+                return;
+            }
+            
+            if (clienteEditando) {
+                clienteEditando.nombre = nombre;
+                clienteEditando.documento = documento;
+                mostrarNotificacion('Cliente actualizado correctamente');
+            } else {
+                const nuevoId = clientes.length > 0 ? Math.max(...clientes.map(c => c.id)) + 1 : 1;
+                clientes.push({
+                    id: nuevoId,
+                    nombre,
+                    documento
+                });
+                mostrarNotificacion('Cliente creado correctamente');
+            }
+            
+            cerrarModal('modalCliente');
+            cargarClientes();
+            actualizarEstadisticas();
+        }
+
+        function eliminarCliente(id) {
+            // Verificar si el cliente tiene ventas asociadas
+            const tieneVentas = ventas.some(v => v.clienteId === id);
+            
+            if (tieneVentas) {
+                mostrarNotificacion('No se puede eliminar el cliente porque tiene ventas asociadas', 'error');
+                return;
+            }
+            
+            if (confirm('¿Está seguro de eliminar este cliente?')) {
+                clientes = clientes.filter(c => c.id !== id);
+                mostrarNotificacion('Cliente eliminado correctamente');
+                cargarClientes();
+                actualizarEstadisticas();
+            }
+        }
+
+        // Ventas
+        function cargarVentas() {
+            const tbody = document.querySelector('#tablaVentas tbody');
+            tbody.innerHTML = '';
+            
+            ventas.forEach(v => {
+                const cliente = clientes.find(c => c.id === v.clienteId);
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${v.id}</td>
+                    <td>${v.fecha}</td>
+                    <td>${cliente ? cliente.nombre : 'Cliente no encontrado'}</td>
+                    <td>$${v.total.toFixed(2)}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline" onclick="verDetalleVenta(${v.id})">
+                            <i class="fas fa-eye"></i> Ver
+                        </button>
+                        <button class="btn btn-sm btn-outline" onclick="editarVenta(${v.id})">
+                            <i class="fas fa-edit"></i> Editar
+                        </button>
+                        <button class="btn btn-sm btn-outline" onclick="eliminarVenta(${v.id})">
+                            <i class="fas fa-trash"></i> Eliminar
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function abrirModalVenta() {
+            ventaEditando = null;
+            document.getElementById('tituloVenta').textContent = 'Nueva Venta';
+            document.getElementById('observacionesVenta').value = '';
+            document.getElementById('totalVenta').textContent = '$0.00';
+            document.getElementById('detallesVenta').innerHTML = '';
+            
+            // Cargar select de clientes
+            const select = document.getElementById('clienteVenta');
+            select.innerHTML = '<option value="">Seleccionar cliente</option>';
+            clientes.forEach(c => {
+                const option = document.createElement('option');
+                option.value = c.id;
+                option.textContent = c.nombre;
+                select.appendChild(option);
+            });
+            
+            document.getElementById('modalVenta').classList.add('active');
+        }
+
+        function editarVenta(id) {
+            ventaEditando = ventas.find(v => v.id === id);
+            document.getElementById('tituloVenta').textContent = 'Editar Venta';
+            document.getElementById('observacionesVenta').value = ventaEditando.observaciones || '';
+            document.getElementById('totalVenta').textContent = `$${ventaEditando.total.toFixed(2)}`;
+            
+            // Cargar select de clientes
+            const select = document.getElementById('clienteVenta');
+            select.innerHTML = '<option value="">Seleccionar cliente</option>';
+            clientes.forEach(c => {
+                const option = document.createElement('option');
+                option.value = c.id;
+                option.textContent = c.nombre;
+                if (c.id === ventaEditando.clienteId) {
+                    option.selected = true;
+                }
+                select.appendChild(option);
+            });
+            
+            // Cargar detalles
+            const detallesDiv = document.getElementById('detallesVenta');
+            detallesDiv.innerHTML = '';
+            
+            ventaEditando.detalles.forEach(d => {
+                const producto = productos.find(p => p.id === d.productoId);
+                const div = document.createElement('div');
+                div.className = 'sale-item';
+                div.innerHTML = `
+                    <select class="form-control sale-item-select productoDetalle">
+                        <option value="">Seleccionar producto</option>
+                        ${productos.map(p => `<option value="${p.id}" ${p.id === d.productoId ? 'selected' : ''}>${p.nombre} ($${p.precio.toFixed(2)})</option>`).join('')}
+                    </select>
+                    <input type="number" class="form-control sale-item-qty cantidadDetalle" value="${d.cantidad}" min="1">
+                    <input type="number" class="form-control sale-item-price precioDetalle" value="${d.precio}" readonly>
+                    <span class="sale-item-subtotal">$${d.subtotal.toFixed(2)}</span>
+                    <button class="sale-item-remove remove-btn" onclick="eliminarDetalle(this)"><i class="fas fa-times"></i></button>
+                `;
+                detallesDiv.appendChild(div);
+                
+                // Agregar eventos
+                const selectProd = div.querySelector('.productoDetalle');
+                selectProd.addEventListener('change', function() {
+                    const productoId = parseInt(this.value);
+                    const producto = productos.find(p => p.id === productoId);
+                    if (producto) {
+                        div.querySelector('.precioDetalle').value = producto.precio;
+                        calcularSubtotal(div);
+                    }
+                });
+                
+                const inputCant = div.querySelector('.cantidadDetalle');
+                inputCant.addEventListener('input', function() {
+                    calcularSubtotal(div);
+                });
+            });
+            
+            document.getElementById('modalVenta').classList.add('active');
+        }
+
+        function agregarDetalle() {
+            const detallesDiv = document.getElementById('detallesVenta');
+            const div = document.createElement('div');
+            div.className = 'sale-item';
+            div.innerHTML = `
+                <select class="form-control sale-item-select productoDetalle">
+                    <option value="">Seleccionar producto</option>
+                    ${productos.map(p => `<option value="${p.id}">${p.nombre} ($${p.precio.toFixed(2)})</option>`).join('')}
+                </select>
+                <input type="number" class="form-control sale-item-qty cantidadDetalle" value="1" min="1">
+                <input type="number" class="form-control sale-item-price precioDetalle" readonly>
+                <span class="sale-item-subtotal">$0.00</span>
+                <button class="sale-item-remove remove-btn" onclick="eliminarDetalle(this)"><i class="fas fa-times"></i></button>
+            `;
+            detallesDiv.appendChild(div);
+            
+            // Agregar eventos
+            const select = div.querySelector('.productoDetalle');
+            select.addEventListener('change', function() {
+                const productoId = parseInt(this.value);
+                const producto = productos.find(p => p.id === productoId);
+                if (producto) {
+                    div.querySelector('.precioDetalle').value = producto.precio;
+                    calcularSubtotal(div);
+                }
+            });
+            
+            const inputCant = div.querySelector('.cantidadDetalle');
+            inputCant.addEventListener('input', function() {
+                calcularSubtotal(div);
+            });
+        }
+
+        function eliminarDetalle(button) {
+            button.parentElement.remove();
+            calcularTotalVenta();
+        }
+
+        function calcularSubtotal(detalleDiv) {
+            const cantidad = parseInt(detalleDiv.querySelector('.cantidadDetalle').value) || 0;
+            const precio = parseFloat(detalleDiv.querySelector('.precioDetalle').value) || 0;
+            const subtotal = cantidad * precio;
+            detalleDiv.querySelector('.sale-item-subtotal').textContent = `$${subtotal.toFixed(2)}`;
+            calcularTotalVenta();
+        }
+
+        function calcularTotalVenta() {
+            let total = 0;
+            document.querySelectorAll('#detallesVenta .sale-item').forEach(div => {
+                const subtotalText = div.querySelector('.sale-item-subtotal').textContent;
+                const subtotal = parseFloat(subtotalText.replace('$', '')) || 0;
+                total += subtotal;
+            });
+            document.getElementById('totalVenta').textContent = `$${total.toFixed(2)}`;
+        }
+
+        function guardarVenta() {
+            const clienteId = parseInt(document.getElementById('clienteVenta').value);
+            const observaciones = document.getElementById('observacionesVenta').value.trim();
+            
+            if (isNaN(clienteId) || clienteId <= 0) {
+                mostrarNotificacion('Seleccione un cliente', 'error');
+                return;
+            }
+            
+            // Obtener detalles
+            const detalles = [];
+            document.querySelectorAll('#detallesVenta .sale-item').forEach(div => {
+                const productoId = parseInt(div.querySelector('.productoDetalle').value);
+                const cantidad = parseInt(div.querySelector('.cantidadDetalle').value);
+                const precio = parseFloat(div.querySelector('.precioDetalle').value);
+                const subtotal = parseFloat(div.querySelector('.sale-item-subtotal').textContent.replace('$', ''));
+                
+                if (productoId && cantidad && precio) {
+                    detalles.push({
+                        id: detalles.length + 1,
+                        productoId,
+                        cantidad,
+                        precio,
+                        subtotal
+                    });
+                }
+            });
+            
+            if (detalles.length === 0) {
+                mostrarNotificacion('Agregue al menos un producto', 'error');
+                return;
+            }
+            
+            const total = parseFloat(document.getElementById('totalVenta').textContent.replace('$', ''));
+            
+            if (ventaEditando) {
+                // Editar venta existente
+                ventaEditando.clienteId = clienteId;
+                ventaEditando.observaciones = observaciones;
+                ventaEditando.total = total;
+                ventaEditando.detalles = detalles;
+                mostrarNotificacion('Venta actualizada correctamente');
+            } else {
+                // Nueva venta
+                const nuevoId = ventas.length > 0 ? Math.max(...ventas.map(v => v.id)) + 1 : 1;
+                ventas.push({
+                    id: nuevoId,
+                    clienteId,
+                    observaciones,
+                    total,
+                    detalles,
+                    fecha: new Date().toISOString().split('T')[0]
+                });
+                mostrarNotificacion('Venta creada correctamente');
+            }
+            
+            cerrarModal('modalVenta');
+            cargarVentas();
+            actualizarEstadisticas();
+        }
+
+        function verDetalleVenta(id) {
+            const venta = ventas.find(v => v.id === id);
+            const cliente = clientes.find(c => c.id === venta.clienteId);
+            
+            // Cabecera
+            document.getElementById('detalle-id').textContent = venta.id;
+            document.getElementById('detalle-cliente').textContent = cliente ? cliente.nombre : 'Cliente no encontrado';
+            document.getElementById('detalle-documento').textContent = cliente ? cliente.documento : '-';
+            document.getElementById('detalle-observaciones').textContent = venta.observaciones || 'Ninguna';
+            document.getElementById('detalle-fecha').textContent = venta.fecha;
+            document.getElementById('detalle-total').textContent = `$${venta.total.toFixed(2)}`;
+            
+            // Detalles
+            const tbody = document.querySelector('#tablaDetalles tbody');
+            tbody.innerHTML = '';
+            
+            venta.detalles.forEach(d => {
+                const producto = productos.find(p => p.id === d.productoId);
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${producto ? producto.nombre : 'Producto no encontrado'}</td>
+                    <td>${producto ? producto.codigo : '-'}</td>
+                    <td>${d.cantidad}</td>
+                    <td>$${d.precio.toFixed(2)}</td>
+                    <td>$${d.subtotal.toFixed(2)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+            
+            document.getElementById('modalDetalle').classList.add('active');
+        }
+
+        function eliminarVenta(id) {
+            if (confirm('¿Está seguro de eliminar esta venta?')) {
+                ventas = ventas.filter(v => v.id !== id);
+                mostrarNotificacion('Venta eliminada correctamente');
+                cargarVentas();
+                actualizarEstadisticas();
+            }
+        }
+
+        // Funciones auxiliares
+        function cerrarModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        function mostrarNotificacion(mensaje, tipo = 'success') {
+            const notification = document.getElementById('notification');
+            notification.className = `notification ${tipo === 'error' ? 'notification-error' : ''}`;
+            document.getElementById('notification-message').textContent = mensaje;
+            
+            // Cambiar ícono según tipo
+            const icon = notification.querySelector('.notification-icon i');
+            icon.className = tipo === 'error' ? 'fas fa-exclamation-circle' : 'fas fa-check-circle';
+            
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Inicialización
+        window.onload = function() {
+            mostrarSeccion('dashboard');
+        };
+    </script>
+</body>
+</html>
