@@ -1,846 +1,468 @@
+# CRUD de Personas y Compras con Validación
+
+Voy a crear un sistema CRUD para dos objetos: Persona y Compra, con validación para que una compra no supere los ingresos de la persona. Usaré HTML para la interfaz y JavaScript puro (vanilla JS) para la lógica, sin frameworks adicionales.
+
+## Código HTML y JavaScript
+
+```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Ventas</title>
+    <title>CRUD Personas y Compras</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
+            margin: 20px;
+            line-height: 1.6;
+        }
+        .container {
             display: flex;
+            gap: 20px;
         }
-        
-        /* Sidebar */
-        .sidebar {
-            width: 200px;
-            background-color: #2c3e50;
-            color: white;
-            height: 100vh;
-            padding: 20px 0;
-        }
-        
-        .sidebar h2 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        
-        .sidebar ul {
-            list-style: none;
-            padding: 0;
-        }
-        
-        .sidebar li {
-            padding: 10px 20px;
-            cursor: pointer;
-            border-bottom: 1px solid #34495e;
-        }
-        
-        .sidebar li:hover {
-            background-color: #34495e;
-        }
-        
-        .sidebar li.active {
-            background-color: #3498db;
-        }
-        
-        /* Main Content */
-        .main-content {
+        .section {
             flex: 1;
-            padding: 20px;
-        }
-        
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        
-        .card {
-            background-color: white;
+            border: 1px solid #ddd;
+            padding: 15px;
             border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            padding: 20px;
+        }
+        h2 {
+            margin-top: 0;
+            color: #333;
+        }
+        form {
             margin-bottom: 20px;
         }
-        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 10px;
+            margin-top: 20px;
         }
-        
         th, td {
             border: 1px solid #ddd;
             padding: 8px;
             text-align: left;
         }
-        
         th {
             background-color: #f2f2f2;
         }
-        
         tr:nth-child(even) {
             background-color: #f9f9f9;
         }
-        
-        .btn {
-            padding: 5px 10px;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-            margin-right: 5px;
-        }
-        
-        .btn-primary {
-            background-color: #3498db;
-            color: white;
-        }
-        
-        .btn-danger {
-            background-color: #e74c3c;
-            color: white;
-        }
-        
-        .btn-success {
-            background-color: #2ecc71;
-            color: white;
-        }
-        
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.4);
-        }
-        
-        .modal-content {
-            background-color: #fefefe;
-            margin: 10% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 60%;
-            border-radius: 5px;
-        }
-        
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        
-        .form-group {
-            margin-bottom: 15px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-        }
-        
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 3px;
-        }
-        
         .error {
-            color: #e74c3c;
-            font-size: 12px;
+            color: red;
             margin-top: 5px;
         }
-        
-        .detail-item {
-            display: flex;
-            margin-bottom: 10px;
-            padding-bottom: 10px;
-            border-bottom: 1px dashed #ddd;
-        }
-        
-        .detail-item select, .detail-item input {
-            margin-right: 10px;
-        }
-        
-        .total-display {
-            font-weight: bold;
-            margin-top: 15px;
-            font-size: 16px;
+        .success {
+            color: green;
+            margin-top: 5px;
         }
     </style>
 </head>
 <body>
-    <!-- Sidebar Navigation -->
-    <div class="sidebar">
-        <h2>Menú</h2>
-        <ul>
-            <li class="active" onclick="showSection('ventas')">Ventas</li>
-            <li onclick="showSection('clientes')">Clientes</li>
-            <li onclick="showSection('productos')">Productos</li>
-        </ul>
-    </div>
+    <h1>CRUD Personas y Compras</h1>
     
-    <!-- Main Content -->
-    <div class="main-content">
-        <!-- Ventas Section -->
-        <div id="ventas-section" class="section">
-            <div class="header">
-                <h2>Gestión de Ventas</h2>
-                <button class="btn btn-primary" onclick="openNewSaleModal()">Nueva Venta</button>
-            </div>
-            
-            <div class="card">
-                <h3>Listado de Ventas</h3>
-                <table id="sales-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Cliente</th>
-                            <th>Observaciones</th>
-                            <th>Total</th>
-                            <th>Fecha</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Sales will be loaded here -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        
-        <!-- Clientes Section -->
-        <div id="clientes-section" class="section" style="display:none;">
-            <div class="header">
-                <h2>Gestión de Clientes</h2>
-                <button class="btn btn-primary" onclick="openNewClientModal()">Nuevo Cliente</button>
-            </div>
-            
-            <div class="card">
-                <h3>Listado de Clientes</h3>
-                <table id="clients-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Nombre</th>
-                            <th>Documento</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Clients will be loaded here -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        
-        <!-- Productos Section -->
-        <div id="productos-section" class="section" style="display:none;">
-            <div class="header">
-                <h2>Gestión de Productos</h2>
-                <button class="btn btn-primary" onclick="openNewProductModal()">Nuevo Producto</button>
-            </div>
-            
-            <div class="card">
-                <h3>Listado de Productos</h3>
-                <table id="products-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Nombre</th>
-                            <th>Código</th>
-                            <th>Precio</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Products will be loaded here -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Modals -->
-    <!-- Product Modal -->
-    <div id="product-modal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal('product-modal')">&times;</span>
-            <h2 id="product-modal-title">Nuevo Producto</h2>
-            <form id="product-form">
-                <input type="hidden" id="product-id">
-                <div class="form-group">
-                    <label for="product-name">Nombre</label>
-                    <input type="text" id="product-name" required>
-                </div>
-                <div class="form-group">
-                    <label for="product-code">Código</label>
-                    <input type="text" id="product-code" required>
-                </div>
-                <div class="form-group">
-                    <label for="product-price">Precio</label>
-                    <input type="number" id="product-price" min="0" step="0.01" required>
-                    <div id="price-error" class="error"></div>
-                </div>
-                <button type="button" class="btn btn-success" onclick="saveProduct()">Guardar</button>
+    <div class="container">
+        <div class="section">
+            <h2>Personas</h2>
+            <form id="personaForm">
+                <input type="hidden" id="personaId">
+                <label for="nombre">Nombre:</label>
+                <input type="text" id="nombre" required>
+                
+                <label for="fechaNacimiento">Fecha de Nacimiento:</label>
+                <input type="date" id="fechaNacimiento" required>
+                
+                <label for="ingresos">Ingresos:</label>
+                <input type="number" id="ingresos" min="0" step="0.01" required>
+                
+                <button type="submit">Guardar</button>
+                <button type="button" onclick="limpiarFormularioPersona()">Limpiar</button>
             </form>
-        </div>
-    </div>
-    
-    <!-- Client Modal -->
-    <div id="client-modal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal('client-modal')">&times;</span>
-            <h2 id="client-modal-title">Nuevo Cliente</h2>
-            <form id="client-form">
-                <input type="hidden" id="client-id">
-                <div class="form-group">
-                    <label for="client-name">Nombre</label>
-                    <input type="text" id="client-name" required>
-                </div>
-                <div class="form-group">
-                    <label for="client-document">Documento</label>
-                    <input type="text" id="client-document" required>
-                </div>
-                <button type="button" class="btn btn-success" onclick="saveClient()">Guardar</button>
-            </form>
-        </div>
-    </div>
-    
-    <!-- Sale Modal -->
-    <div id="sale-modal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal('sale-modal')">&times;</span>
-            <h2 id="sale-modal-title">Nueva Venta</h2>
-            <form id="sale-form">
-                <input type="hidden" id="sale-id">
-                <div class="form-group">
-                    <label for="sale-client">Cliente</label>
-                    <select id="sale-client" required>
-                        <option value="">Seleccione un cliente</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="sale-notes">Observaciones</label>
-                    <input type="text" id="sale-notes">
-                </div>
-                
-                <h3>Detalles de la Venta</h3>
-                <div id="sale-details">
-                    <!-- Sale details will be added here -->
-                </div>
-                
-                <button type="button" class="btn btn-primary" onclick="addSaleDetail()">Agregar Producto</button>
-                
-                <div class="total-display">
-                    Total: $<span id="sale-total">0.00</span>
-                </div>
-                
-                <button type="button" class="btn btn-success" onclick="saveSale()">Guardar Venta</button>
-            </form>
-        </div>
-    </div>
-    
-    <!-- Sale Detail Modal -->
-    <div id="sale-detail-modal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal('sale-detail-modal')">&times;</span>
-            <h2>Detalles de Venta</h2>
-            <div id="sale-detail-info">
-                <!-- Sale details will be shown here -->
-            </div>
-        </div>
-    </div>
-    
-    <script>
-        // Data storage
-        let products = [
-            { id: 1, name: "Producto 1", code: "P001", price: 100 },
-            { id: 2, name: "Producto 2", code: "P002", price: 200 },
-            { id: 3, name: "Producto 3", code: "P003", price: 300 }
-        ];
-        
-        let clients = [
-            { id: 1, name: "Cliente 1", document: "12345678" },
-            { id: 2, name: "Cliente 2", document: "87654321" },
-            { id: 3, name: "Cliente 3", document: "11223344" }
-        ];
-        
-        let sales = [
-            { 
-                id: 1, 
-                clientId: 1, 
-                notes: "Primera venta", 
-                date: "2025-03-27", 
-                total: 400,
-                details: [
-                    { id: 1, productId: 1, quantity: 2, price: 100, subtotal: 200 },
-                    { id: 2, productId: 2, quantity: 1, price: 200, subtotal: 200 }
-                ]
-            }
-        ];
-        
-        // Current editing items
-        let currentProduct = null;
-        let currentClient = null;
-        let currentSale = null;
-        let nextDetailId = 1;
-        
-        // Initialize the app
-        function init() {
-            loadProducts();
-            loadClients();
-            loadSales();
-        }
-        
-        // Show section based on menu selection
-        function showSection(section) {
-            document.querySelectorAll('.section').forEach(sec => {
-                sec.style.display = 'none';
-            });
-            document.getElementById(section + '-section').style.display = 'block';
             
-            // Update active menu item
-            document.querySelectorAll('.sidebar li').forEach(li => {
-                li.classList.remove('active');
-            });
-            event.target.classList.add('active');
-        }
-        
-        // Product functions
-        function loadProducts() {
-            const tbody = document.querySelector('#products-table tbody');
-            tbody.innerHTML = '';
-            
-            products.forEach(product => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${product.id}</td>
-                    <td>${product.name}</td>
-                    <td>${product.code}</td>
-                    <td>$${product.price.toFixed(2)}</td>
-                    <td>
-                        <button class="btn btn-primary" onclick="editProduct(${product.id})">Editar</button>
-                        <button class="btn btn-danger" onclick="deleteProduct(${product.id})">Eliminar</button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-        
-        function openNewProductModal() {
-            currentProduct = null;
-            document.getElementById('product-modal-title').textContent = 'Nuevo Producto';
-            document.getElementById('product-id').value = '';
-            document.getElementById('product-name').value = '';
-            document.getElementById('product-code').value = '';
-            document.getElementById('product-price').value = '';
-            document.getElementById('price-error').textContent = '';
-            document.getElementById('product-modal').style.display = 'block';
-        }
-        
-        function editProduct(id) {
-            currentProduct = products.find(p => p.id === id);
-            document.getElementById('product-modal-title').textContent = 'Editar Producto';
-            document.getElementById('product-id').value = currentProduct.id;
-            document.getElementById('product-name').value = currentProduct.name;
-            document.getElementById('product-code').value = currentProduct.code;
-            document.getElementById('product-price').value = currentProduct.price;
-            document.getElementById('price-error').textContent = '';
-            document.getElementById('product-modal').style.display = 'block';
-        }
-        
-        function saveProduct() {
-            const id = document.getElementById('product-id').value;
-            const name = document.getElementById('product-name').value;
-            const code = document.getElementById('product-code').value;
-            const price = parseFloat(document.getElementById('product-price').value);
-            
-            // Validate price (300 < price < 1000 not allowed)
-            if (price > 300 && price < 1000) {
-                document.getElementById('price-error').textContent = 'El precio no puede estar entre 300 y 1000';
-                return;
-            }
-            
-            if (!name || !code || isNaN(price)) {
-                alert('Complete todos los campos correctamente');
-                return;
-            }
-            
-            if (currentProduct) {
-                // Update existing product
-                currentProduct.name = name;
-                currentProduct.code = code;
-                currentProduct.price = price;
-            } else {
-                // Add new product
-                const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
-                products.push({
-                    id: newId,
-                    name,
-                    code,
-                    price
-                });
-            }
-            
-            closeModal('product-modal');
-            loadProducts();
-        }
-        
-        function deleteProduct(id) {
-            if (confirm('¿Está seguro que desea eliminar este producto?')) {
-                products = products.filter(p => p.id !== id);
-                loadProducts();
-            }
-        }
-        
-        // Client functions
-        function loadClients() {
-            const tbody = document.querySelector('#clients-table tbody');
-            tbody.innerHTML = '';
-            
-            clients.forEach(client => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${client.id}</td>
-                    <td>${client.name}</td>
-                    <td>${client.document}</td>
-                    <td>
-                        <button class="btn btn-primary" onclick="editClient(${client.id})">Editar</button>
-                        <button class="btn btn-danger" onclick="deleteClient(${client.id})">Eliminar</button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-        
-        function openNewClientModal() {
-            currentClient = null;
-            document.getElementById('client-modal-title').textContent = 'Nuevo Cliente';
-            document.getElementById('client-id').value = '';
-            document.getElementById('client-name').value = '';
-            document.getElementById('client-document').value = '';
-            document.getElementById('client-modal').style.display = 'block';
-        }
-        
-        function editClient(id) {
-            currentClient = clients.find(c => c.id === id);
-            document.getElementById('client-modal-title').textContent = 'Editar Cliente';
-            document.getElementById('client-id').value = currentClient.id;
-            document.getElementById('client-name').value = currentClient.name;
-            document.getElementById('client-document').value = currentClient.document;
-            document.getElementById('client-modal').style.display = 'block';
-        }
-        
-        function saveClient() {
-            const id = document.getElementById('client-id').value;
-            const name = document.getElementById('client-name').value;
-            const document = document.getElementById('client-document').value;
-            
-            if (!name || !document) {
-                alert('Complete todos los campos');
-                return;
-            }
-            
-            if (currentClient) {
-                // Update existing client
-                currentClient.name = name;
-                currentClient.document = document;
-            } else {
-                // Add new client
-                const newId = clients.length > 0 ? Math.max(...clients.map(c => c.id)) + 1 : 1;
-                clients.push({
-                    id: newId,
-                    name,
-                    document
-                });
-            }
-            
-            closeModal('client-modal');
-            loadClients();
-        }
-        
-        function deleteClient(id) {
-            if (confirm('¿Está seguro que desea eliminar este cliente?')) {
-                clients = clients.filter(c => c.id !== id);
-                loadClients();
-            }
-        }
-        
-        // Sale functions
-        function loadSales() {
-            const tbody = document.querySelector('#sales-table tbody');
-            tbody.innerHTML = '';
-            
-            sales.forEach(sale => {
-                const client = clients.find(c => c.id === sale.clientId);
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${sale.id}</td>
-                    <td>${client ? client.name : 'Cliente no encontrado'}</td>
-                    <td>${sale.notes || ''}</td>
-                    <td>$${sale.total.toFixed(2)}</td>
-                    <td>${sale.date}</td>
-                    <td>
-                        <button class="btn btn-primary" onclick="viewSaleDetails(${sale.id})">Ver</button>
-                        <button class="btn btn-primary" onclick="editSale(${sale.id})">Editar</button>
-                        <button class="btn btn-danger" onclick="deleteSale(${sale.id})">Eliminar</button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-        
-        function openNewSaleModal() {
-            currentSale = null;
-            nextDetailId = 1;
-            document.getElementById('sale-modal-title').textContent = 'Nueva Venta';
-            document.getElementById('sale-id').value = '';
-            document.getElementById('sale-notes').value = '';
-            document.getElementById('sale-total').textContent = '0.00';
-            document.getElementById('sale-details').innerHTML = '';
-            
-            // Load clients dropdown
-            const clientSelect = document.getElementById('sale-client');
-            clientSelect.innerHTML = '<option value="">Seleccione un cliente</option>';
-            clients.forEach(client => {
-                const option = document.createElement('option');
-                option.value = client.id;
-                option.textContent = client.name;
-                clientSelect.appendChild(option);
-            });
-            
-            document.getElementById('sale-modal').style.display = 'block';
-        }
-        
-        function editSale(id) {
-            currentSale = sales.find(s => s.id === id);
-            nextDetailId = currentSale.details.length > 0 ? Math.max(...currentSale.details.map(d => d.id)) + 1 : 1;
-            document.getElementById('sale-modal-title').textContent = 'Editar Venta';
-            document.getElementById('sale-id').value = currentSale.id;
-            document.getElementById('sale-notes').value = currentSale.notes || '';
-            document.getElementById('sale-total').textContent = currentSale.total.toFixed(2);
-            
-            // Load clients dropdown
-            const clientSelect = document.getElementById('sale-client');
-            clientSelect.innerHTML = '<option value="">Seleccione un cliente</option>';
-            clients.forEach(client => {
-                const option = document.createElement('option');
-                option.value = client.id;
-                option.textContent = client.name;
-                if (client.id === currentSale.clientId) {
-                    option.selected = true;
-                }
-                clientSelect.appendChild(option);
-            });
-            
-            // Load sale details
-            const detailsContainer = document.getElementById('sale-details');
-            detailsContainer.innerHTML = '';
-            
-            currentSale.details.forEach(detail => {
-                const product = products.find(p => p.id === detail.productId);
-                if (!product) return;
-                
-                const detailDiv = document.createElement('div');
-                detailDiv.className = 'detail-item';
-                detailDiv.innerHTML = `
-                    <select onchange="updateDetailPrice(this)" style="flex:2;">
-                        <option value="">Seleccione producto</option>
-                        ${products.map(p => `<option value="${p.id}" ${p.id === detail.productId ? 'selected' : ''}>${p.name} ($${p.price.toFixed(2)})</option>`).join('')}
-                    </select>
-                    <input type="number" min="1" value="${detail.quantity}" onchange="calculateDetailSubtotal(this)" style="flex:1;">
-                    <span style="flex:1;">Precio: $<span class="detail-price">${detail.price.toFixed(2)}</span></span>
-                    <span style="flex:1;">Subtotal: $<span class="detail-subtotal">${detail.subtotal.toFixed(2)}</span></span>
-                    <button class="btn btn-danger" onclick="removeDetail(this)">Eliminar</button>
-                    <input type="hidden" class="detail-id" value="${detail.id}">
-                `;
-                detailsContainer.appendChild(detailDiv);
-            });
-            
-            document.getElementById('sale-modal').style.display = 'block';
-        }
-        
-        function addSaleDetail() {
-            const detailsContainer = document.getElementById('sale-details');
-            const detailId = nextDetailId++;
-            
-            const detailDiv = document.createElement('div');
-            detailDiv.className = 'detail-item';
-            detailDiv.innerHTML = `
-                <select onchange="updateDetailPrice(this)" style="flex:2;">
-                    <option value="">Seleccione producto</option>
-                    ${products.map(p => `<option value="${p.id}">${p.name} ($${p.price.toFixed(2)})</option>`).join('')}
-                </select>
-                <input type="number" min="1" value="1" onchange="calculateDetailSubtotal(this)" style="flex:1;">
-                <span style="flex:1;">Precio: $<span class="detail-price">0.00</span></span>
-                <span style="flex:1;">Subtotal: $<span class="detail-subtotal">0.00</span></span>
-                <button class="btn btn-danger" onclick="removeDetail(this)">Eliminar</button>
-                <input type="hidden" class="detail-id" value="${detailId}">
-            `;
-            detailsContainer.appendChild(detailDiv);
-        }
-        
-        function updateDetailPrice(select) {
-            const productId = parseInt(select.value);
-            const product = products.find(p => p.id === productId);
-            const detailItem = select.closest('.detail-item');
-            
-            if (product && detailItem) {
-                detailItem.querySelector('.detail-price').textContent = product.price.toFixed(2);
-                const quantityInput = detailItem.querySelector('input[type="number"]');
-                quantityInput.value = 1;
-                calculateDetailSubtotal(quantityInput);
-            }
-        }
-        
-        function calculateDetailSubtotal(input) {
-            const detailItem = input.closest('.detail-item');
-            const price = parseFloat(detailItem.querySelector('.detail-price').textContent) || 0;
-            const quantity = parseInt(input.value) || 0;
-            const subtotal = price * quantity;
-            
-            detailItem.querySelector('.detail-subtotal').textContent = subtotal.toFixed(2);
-            calculateSaleTotal();
-        }
-        
-        function removeDetail(button) {
-            button.closest('.detail-item').remove();
-            calculateSaleTotal();
-        }
-        
-        function calculateSaleTotal() {
-            let total = 0;
-            document.querySelectorAll('.detail-subtotal').forEach(span => {
-                total += parseFloat(span.textContent) || 0;
-            });
-            document.getElementById('sale-total').textContent = total.toFixed(2);
-        }
-        
-        function saveSale() {
-            const clientId = parseInt(document.getElementById('sale-client').value);
-            const notes = document.getElementById('sale-notes').value;
-            const total = parseFloat(document.getElementById('sale-total').textContent);
-            
-            if (isNaN(clientId) || clientId <= 0) {
-                alert('Seleccione un cliente');
-                return;
-            }
-            
-            // Collect sale details
-            const details = [];
-            document.querySelectorAll('.detail-item').forEach(item => {
-                const productId = parseInt(item.querySelector('select').value);
-                const quantity = parseInt(item.querySelector('input[type="number"]').value);
-                const price = parseFloat(item.querySelector('.detail-price').textContent);
-                const subtotal = parseFloat(item.querySelector('.detail-subtotal').textContent);
-                const detailId = parseInt(item.querySelector('.detail-id').value);
-                
-                if (productId && quantity && price) {
-                    details.push({
-                        id: detailId,
-                        productId,
-                        quantity,
-                        price,
-                        subtotal
-                    });
-                }
-            });
-            
-            if (details.length === 0) {
-                alert('Agregue al menos un producto a la venta');
-                return;
-            }
-            
-            if (currentSale) {
-                // Update existing sale
-                currentSale.clientId = clientId;
-                currentSale.notes = notes;
-                currentSale.total = total;
-                currentSale.details = details;
-            } else {
-                // Add new sale
-                const newId = sales.length > 0 ? Math.max(...sales.map(s => s.id)) + 1 : 1;
-                sales.push({
-                    id: newId,
-                    clientId,
-                    notes,
-                    total,
-                    details,
-                    date: new Date().toISOString().split('T')[0]
-                });
-            }
-            
-            closeModal('sale-modal');
-            loadSales();
-        }
-        
-        function viewSaleDetails(id) {
-            const sale = sales.find(s => s.id === id);
-            const client = clients.find(c => c.id === sale.clientId);
-            
-            let html = `
-                <p><strong>Cliente:</strong> ${client ? client.name : 'Cliente no encontrado'}</p>
-                <p><strong>Documento:</strong> ${client ? client.document : ''}</p>
-                <p><strong>Fecha:</strong> ${sale.date}</p>
-                <p><strong>Observaciones:</strong> ${sale.notes || 'Ninguna'}</p>
-                
+            <div id="personasList">
                 <table>
                     <thead>
                         <tr>
-                            <th>Producto</th>
-                            <th>Cantidad</th>
-                            <th>Precio Unitario</th>
-                            <th>Subtotal</th>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Edad</th>
+                            <th>Ingresos</th>
+                            <th>Acciones</th>
                         </tr>
                     </thead>
-                    <tbody>
-            `;
-            
-            sale.details.forEach(detail => {
-                const product = products.find(p => p.id === detail.productId);
-                html += `
-                    <tr>
-                        <td>${product ? product.name : 'Producto no encontrado'}</td>
-                        <td>${detail.quantity}</td>
-                        <td>$${detail.price.toFixed(2)}</td>
-                        <td>$${detail.subtotal.toFixed(2)}</td>
-                    </tr>
-                `;
-            });
-            
-            html += `
+                    <tbody id="personasTableBody">
+                        <!-- Personas se cargarán aquí -->
                     </tbody>
                 </table>
-                <p class="total-display"><strong>Total:</strong> $${sale.total.toFixed(2)}</p>
-            `;
-            
-            document.getElementById('sale-detail-info').innerHTML = html;
-            document.getElementById('sale-detail-modal').style.display = 'block';
-        }
+            </div>
+        </div>
         
-        function deleteSale(id) {
-            if (confirm('¿Está seguro que desea eliminar esta venta?')) {
-                sales = sales.filter(s => s.id !== id);
-                loadSales();
+        <div class="section">
+            <h2>Compras</h2>
+            <form id="compraForm">
+                <input type="hidden" id="compraId">
+                
+                <label for="fechaCompra">Fecha:</label>
+                <input type="date" id="fechaCompra" required>
+                
+                <label for="personaCompra">Persona:</label>
+                <select id="personaCompra" required>
+                    <option value="">Seleccione una persona</option>
+                </select>
+                
+                <label for="montoCompra">Monto:</label>
+                <input type="number" id="montoCompra" min="0" step="0.01" required>
+                
+                <div id="mensajeValidacion" class="error"></div>
+                
+                <button type="submit">Registrar Compra</button>
+                <button type="button" onclick="limpiarFormularioCompra()">Limpiar</button>
+            </form>
+            
+            <div id="comprasList">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Fecha</th>
+                            <th>Persona</th>
+                            <th>Monto</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="comprasTableBody">
+                        <!-- Compras se cargarán aquí -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variables globales
+        let personas = [];
+        let compras = [];
+        let editingPersonaId = null;
+        let editingCompraId = null;
+
+        // Clases
+        class Persona {
+            constructor(id, nombre, fechaNacimiento, ingresos) {
+                this.id = id;
+                this.nombre = nombre;
+                this.fechaNacimiento = fechaNacimiento;
+                this.ingresos = parseFloat(ingresos);
+            }
+
+            get edad() {
+                const hoy = new Date();
+                const nacimiento = new Date(this.fechaNacimiento);
+                let edad = hoy.getFullYear() - nacimiento.getFullYear();
+                const mes = hoy.getMonth() - nacimiento.getMonth();
+                
+                if (mes < 0 || (mes === 0 && hoy.getDate() < nacimiento.getDate())) {
+                    edad--;
+                }
+                
+                return edad;
             }
         }
-        
-        // Utility functions
-        function closeModal(id) {
-            document.getElementById(id).style.display = 'none';
+
+        class Compra {
+            constructor(id, fecha, personaId, monto) {
+                this.id = id;
+                this.fecha = fecha;
+                this.personaId = personaId;
+                this.monto = parseFloat(monto);
+            }
         }
-        
-        // Initialize the application
-        window.onload = init;
+
+        // Funciones para Personas
+        function guardarPersona(event) {
+            event.preventDefault();
+            
+            const id = document.getElementById('personaId').value || Date.now().toString();
+            const nombre = document.getElementById('nombre').value;
+            const fechaNacimiento = document.getElementById('fechaNacimiento').value;
+            const ingresos = document.getElementById('ingresos').value;
+            
+            if (!nombre || !fechaNacimiento || !ingresos) {
+                alert('Por favor complete todos los campos');
+                return;
+            }
+            
+            // Validar fecha de nacimiento
+            const fechaNac = new Date(fechaNacimiento);
+            const hoy = new Date();
+            if (fechaNac > hoy) {
+                alert('La fecha de nacimiento no puede ser en el futuro');
+                return;
+            }
+            
+            if (editingPersonaId) {
+                // Editar persona existente
+                const index = personas.findIndex(p => p.id === editingPersonaId);
+                if (index !== -1) {
+                    personas[index] = new Persona(editingPersonaId, nombre, fechaNacimiento, ingresos);
+                }
+                editingPersonaId = null;
+            } else {
+                // Crear nueva persona
+                const persona = new Persona(id, nombre, fechaNacimiento, ingresos);
+                personas.push(persona);
+            }
+            
+            actualizarListaPersonas();
+            actualizarSelectPersonas();
+            limpiarFormularioPersona();
+        }
+
+        function editarPersona(id) {
+            const persona = personas.find(p => p.id === id);
+            if (persona) {
+                document.getElementById('personaId').value = persona.id;
+                document.getElementById('nombre').value = persona.nombre;
+                document.getElementById('fechaNacimiento').value = persona.fechaNacimiento;
+                document.getElementById('ingresos').value = persona.ingresos;
+                
+                editingPersonaId = id;
+            }
+        }
+
+        function eliminarPersona(id) {
+            if (confirm('¿Está seguro de eliminar esta persona? También se eliminarán sus compras.')) {
+                personas = personas.filter(p => p.id !== id);
+                compras = compras.filter(c => c.personaId !== id);
+                
+                actualizarListaPersonas();
+                actualizarListaCompras();
+                actualizarSelectPersonas();
+            }
+        }
+
+        function limpiarFormularioPersona() {
+            document.getElementById('personaForm').reset();
+            document.getElementById('personaId').value = '';
+            editingPersonaId = null;
+        }
+
+        function actualizarListaPersonas() {
+            const tableBody = document.getElementById('personasTableBody');
+            tableBody.innerHTML = '';
+            
+            personas.forEach(persona => {
+                const row = document.createElement('tr');
+                
+                row.innerHTML = `
+                    <td>${persona.id}</td>
+                    <td>${persona.nombre}</td>
+                    <td>${persona.edad} años</td>
+                    <td>$${persona.ingresos.toFixed(2)}</td>
+                    <td>
+                        <button onclick="editarPersona('${persona.id}')">Editar</button>
+                        <button onclick="eliminarPersona('${persona.id}')">Eliminar</button>
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Funciones para Compras
+        function guardarCompra(event) {
+            event.preventDefault();
+            
+            const id = document.getElementById('compraId').value || Date.now().toString();
+            const fecha = document.getElementById('fechaCompra').value;
+            const personaId = document.getElementById('personaCompra').value;
+            const monto = parseFloat(document.getElementById('montoCompra').value);
+            
+            if (!fecha || !personaId || isNaN(monto)) {
+                alert('Por favor complete todos los campos');
+                return;
+            }
+            
+            // Validar que el monto no supere los ingresos de la persona
+            const persona = personas.find(p => p.id === personaId);
+            if (!persona) {
+                alert('Persona no encontrada');
+                return;
+            }
+            
+            // Calcular total de compras existentes de esta persona
+            const comprasPersona = compras.filter(c => c.personaId === personaId && c.id !== editingCompraId);
+            const totalCompras = comprasPersona.reduce((total, compra) => total + compra.monto, 0);
+            
+            if (totalCompras + monto > persona.ingresos) {
+                document.getElementById('mensajeValidacion').textContent = 
+                    'Error: El monto total de compras supera los ingresos de la persona';
+                document.getElementById('mensajeValidacion').className = 'error';
+                return;
+            } else {
+                document.getElementById('mensajeValidacion').textContent = 
+                    'Compra válida: Monto dentro de los ingresos disponibles';
+                document.getElementById('mensajeValidacion').className = 'success';
+            }
+            
+            if (editingCompraId) {
+                // Editar compra existente
+                const index = compras.findIndex(c => c.id === editingCompraId);
+                if (index !== -1) {
+                    compras[index] = new Compra(editingCompraId, fecha, personaId, monto);
+                }
+                editingCompraId = null;
+            } else {
+                // Crear nueva compra
+                const compra = new Compra(id, fecha, personaId, monto);
+                compras.push(compra);
+            }
+            
+            actualizarListaCompras();
+            limpiarFormularioCompra();
+        }
+
+        function editarCompra(id) {
+            const compra = compras.find(c => c.id === id);
+            if (compra) {
+                document.getElementById('compraId').value = compra.id;
+                document.getElementById('fechaCompra').value = compra.fecha;
+                document.getElementById('personaCompra').value = compra.personaId;
+                document.getElementById('montoCompra').value = compra.monto;
+                
+                editingCompraId = id;
+                
+                // Validación inicial al editar
+                validarMontoCompra();
+            }
+        }
+
+        function eliminarCompra(id) {
+            if (confirm('¿Está seguro de eliminar esta compra?')) {
+                compras = compras.filter(c => c.id !== id);
+                actualizarListaCompras();
+            }
+        }
+
+        function limpiarFormularioCompra() {
+            document.getElementById('compraForm').reset();
+            document.getElementById('compraId').value = '';
+            document.getElementById('mensajeValidacion').textContent = '';
+            editingCompraId = null;
+        }
+
+        function actualizarListaCompras() {
+            const tableBody = document.getElementById('comprasTableBody');
+            tableBody.innerHTML = '';
+            
+            compras.forEach(compra => {
+                const persona = personas.find(p => p.id === compra.personaId);
+                const nombrePersona = persona ? persona.nombre : 'Desconocido';
+                
+                const row = document.createElement('tr');
+                
+                row.innerHTML = `
+                    <td>${compra.id}</td>
+                    <td>${compra.fecha}</td>
+                    <td>${nombrePersona}</td>
+                    <td>$${compra.monto.toFixed(2)}</td>
+                    <td>
+                        <button onclick="editarCompra('${compra.id}')">Editar</button>
+                        <button onclick="eliminarCompra('${compra.id}')">Eliminar</button>
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+        }
+
+        function actualizarSelectPersonas() {
+            const select = document.getElementById('personaCompra');
+            select.innerHTML = '<option value="">Seleccione una persona</option>';
+            
+            personas.forEach(persona => {
+                const option = document.createElement('option');
+                option.value = persona.id;
+                option.textContent = `${persona.nombre} ($${persona.ingresos.toFixed(2)})`;
+                select.appendChild(option);
+            });
+        }
+
+        function validarMontoCompra() {
+            const personaId = document.getElementById('personaCompra').value;
+            const monto = parseFloat(document.getElementById('montoCompra').value) || 0;
+            
+            if (!personaId) {
+                document.getElementById('mensajeValidacion').textContent = '';
+                return;
+            }
+            
+            const persona = personas.find(p => p.id === personaId);
+            if (!persona) return;
+            
+            // Calcular total de compras existentes (excluyendo la compra que estamos editando, si aplica)
+            const comprasPersona = compras.filter(c => c.personaId === personaId && c.id !== editingCompraId);
+            const totalCompras = comprasPersona.reduce((total, compra) => total + compra.monto, 0);
+            
+            if (totalCompras + monto > persona.ingresos) {
+                document.getElementById('mensajeValidacion').textContent = 
+                    `Error: El monto total de compras ($${(totalCompras + monto).toFixed(2)}) supera los ingresos ($${persona.ingresos.toFixed(2)})`;
+                document.getElementById('mensajeValidacion').className = 'error';
+            } else {
+                document.getElementById('mensajeValidacion').textContent = 
+                    `Compra válida: Ingresos disponibles: $${(persona.ingresos - totalCompras).toFixed(2)}`;
+                document.getElementById('mensajeValidacion').className = 'success';
+            }
+        }
+
+        // Event Listeners
+        document.getElementById('personaForm').addEventListener('submit', guardarPersona);
+        document.getElementById('compraForm').addEventListener('submit', guardarCompra);
+        document.getElementById('personaCompra').addEventListener('change', validarMontoCompra);
+        document.getElementById('montoCompra').addEventListener('input', validarMontoCompra);
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', () => {
+            // Datos de ejemplo (opcional)
+            const hoy = new Date();
+            const hace30Anios = new Date(hoy.getFullYear() - 30, hoy.getMonth(), hoy.getDate());
+            const hace25Anios = new Date(hoy.getFullYear() - 25, hoy.getMonth(), hoy.getDate());
+            
+            personas.push(new Persona('1', 'Juan Pérez', hace30Anios.toISOString().split('T')[0], 5000));
+            personas.push(new Persona('2', 'María García', hace25Anios.toISOString().split('T')[0], 3000));
+            
+            compras.push(new Compra('1', hoy.toISOString().split('T')[0], '1', 1000));
+            compras.push(new Compra('2', hoy.toISOString().split('T')[0], '2', 500));
+            
+            actualizarListaPersonas();
+            actualizarListaCompras();
+            actualizarSelectPersonas();
+        });
     </script>
 </body>
 </html>
